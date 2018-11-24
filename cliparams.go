@@ -5,6 +5,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"strings"
@@ -20,6 +21,7 @@ type cliParamsType struct {
 	user     string
 	password string
 	log      string
+	ssl      bool
 }
 
 const (
@@ -43,6 +45,7 @@ func initCliParams() (clip cliParamsType) {
 	flag.StringVar(&clip.user, "user", "postgres", "connect as specified database user")
 	flag.StringVar(&clip.password, "password", "", "connect using a specified password (default none)")
 	flag.StringVar(&clip.log, "log", "", "output detailed log to a file (default none)")
+	flag.BoolVar(&clip.ssl, "ssl", true, "enable use of SSL mode")
 	flag.Parse()
 
 	if len(clip.sql) == 0 {
@@ -57,6 +60,8 @@ func initCliParams() (clip cliParamsType) {
 			log.SetFlags(log.Flags() | log.Lmicroseconds)
 			log.SetOutput(file)
 		}
+	} else {
+		log.SetOutput(ioutil.Discard)
 	}
 	return
 }
@@ -67,6 +72,9 @@ func (clip *cliParamsType) connectionString() string {
 	fmt.Fprintf(&conn, "user=%s dbname=%s host=%s port=%d", clip.user, clip.database, clip.host, clip.port)
 	if len(clip.password) > 0 {
 		fmt.Fprintf(&conn, " password=%s", clip.password)
+	}
+	if !clip.ssl {
+		fmt.Fprintf(&conn, " sslmode=disable")
 	}
 	return conn.String()
 }
