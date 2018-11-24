@@ -5,6 +5,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 )
@@ -18,6 +19,7 @@ type cliParamsType struct {
 	database string
 	user     string
 	password string
+	log      string
 }
 
 const (
@@ -40,12 +42,22 @@ func initCliParams() (clip cliParamsType) {
 	flag.StringVar(&clip.database, "database", "homework", "database name")
 	flag.StringVar(&clip.user, "user", "postgres", "connect as specified database user")
 	flag.StringVar(&clip.password, "password", "", "connect using a specified password (default none)")
+	flag.StringVar(&clip.log, "log", "", "output detailed log to a file (default none)")
 	flag.Parse()
 
 	if len(clip.sql) == 0 {
 		clip.sql = defaultSQL
 	}
 
+	if len(clip.log) > 0 {
+		file, err := os.OpenFile(clip.log, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+		} else {
+			log.SetFlags(log.Flags() | log.Lmicroseconds)
+			log.SetOutput(file)
+		}
+	}
 	return
 }
 

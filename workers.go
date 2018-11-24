@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 	"os"
 	"time"
 )
@@ -41,12 +42,12 @@ function for the details of how the CSV file is parsed. Once reading the CSV fil
 error or EOF), worke channels are automatically closed. Also, when workers are done, they signal
 this on the done channel.
 */
-func (workers *workersType) run(paramsProvider func(), runner func(params <-chan []string)) (results measurementsType, err error) {
-	for _, jobChannel := range workers.jobsChannels {
-		go func(jc <-chan []string) {
-			runner(jc)
+func (workers *workersType) run(paramsProvider func(), runner func(params <-chan []string, i int)) (results measurementsType, err error) {
+	for i, jobChannel := range workers.jobsChannels {
+		go func(jc <-chan []string, i int) {
+			runner(jc, i)
 			workers.doneChannel <- struct{}{}
-		}(jobChannel)
+		}(jobChannel, i)
 	}
 	go func() {
 		paramsProvider()
@@ -74,7 +75,7 @@ func (workers *workersType) run(paramsProvider func(), runner func(params <-chan
 
 // benchmarkQueryExecution takes an array of parameters and executes SQL query with them.
 // It registers the execution time and reports it to the results channel.
-func (workers *workersType) benchmarkQueryExecution(params <-chan []string) {
+func (workers *workersType) benchmarkQueryExecution(params <-chan []string, i int) {
 	var executionTime time.Duration
 	var err error
 	var db *sql.DB
@@ -92,6 +93,7 @@ func (workers *workersType) benchmarkQueryExecution(params <-chan []string) {
 			fmt.Fprintln(os.Stderr, err)
 			continue
 		}
+		log.Println(i, executionTime)
 		workers.resultsChannel <- executionTime
 	}
 }
