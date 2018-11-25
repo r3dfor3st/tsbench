@@ -73,7 +73,7 @@ func (clip *cliParamsType) connectionString() string {
 	if len(clip.password) > 0 {
 		fmt.Fprintf(&conn, " password=%s", clip.password)
 	}
-	if !clip.ssl {
+	if clip.ssl == false {
 		fmt.Fprintf(&conn, " sslmode=disable")
 	}
 	return conn.String()

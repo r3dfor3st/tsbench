@@ -21,7 +21,7 @@ func TestConnectionString(t *testing.T) {
 		database: "home",
 		user:     "mike",
 		password: "password"}
-	compare(clip.connectionString(), "user=mike dbname=home host=tsdb001.timescaledb.com port=1234 password=password", t)
+	compare(clip.connectionString(), "user=mike dbname=home host=tsdb001.timescaledb.com port=1234 password=password sslmode=disable", t)
 }
 
 func TestConnectionString_NoPassword(t *testing.T) {
@@ -31,5 +31,5 @@ func TestConnectionString_NoPassword(t *testing.T) {
 		database: "home",
 		user:     "mike"}
 	initCliParams()
-	compare(clip.connectionString(), "user=mike dbname=home host=tsdb001.timescaledb.com port=1234", t)
+	compare(clip.connectionString(), "user=mike dbname=home host=tsdb001.timescaledb.com port=1234 sslmode=disable", t)
 }

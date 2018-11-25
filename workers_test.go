@@ -22,7 +22,7 @@ func TestRun(t *testing.T) {
 				workers.jobsChannels[rand.Intn(int(workersCount))] <- rec
 			}
 		},
-		func(params <-chan []string) {
+		func(params <-chan []string, i int) {
 			for rec := range params {
 				workers.resultsChannel <- time.Duration(len(rec))
 			}
