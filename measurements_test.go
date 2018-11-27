@@ -44,8 +44,8 @@ func TestAvg(t *testing.T) {
 }
 
 func TestMedian(t *testing.T) {
-	measurements := measurementsType{123, 456, 789}
-	compare(measurements.median(), time.Duration(456)*time.Nanosecond, t)
+	measurements := measurementsType{5, 3, 2, 4, 1, 6, 8}
+	compare(measurements.median(), time.Duration(4)*time.Nanosecond, t)
 }
 
 func TestSdev(t *testing.T) {
