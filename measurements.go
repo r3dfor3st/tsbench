@@ -109,28 +109,36 @@ func (m measurementsType) sdev() (result time.Duration) {
 }
 
 func (m measurementsType) nth(n int) (result time.Duration) {
-	var pivot time.Duration
-	var underPivot, overPivot, eqPivot measurementsType
+	return m.nthInPlace(0, len(m)-1, n)
+}
 
-	pivot = m[len(m)/2]
+func (m measurementsType) nthInPlace(left, right, n int) (result time.Duration) {
+	if left == right {
+		return m[left]
+	}
 
-	for _, dur := range m {
-		if dur < pivot {
-			underPivot = append(underPivot, dur)
-		} else if dur > pivot {
-			overPivot = append(overPivot, dur)
-		} else {
-			eqPivot = append(eqPivot, dur)
+	pivotIndex := len(m) / 2
+	pivotIndex = m.partition(left, right, pivotIndex)
+
+	if n == pivotIndex {
+		return m[n]
+	} else if n < pivotIndex {
+		return m.nthInPlace(left, pivotIndex-1, n)
+	} else {
+		return m.nthInPlace(pivotIndex+1, right, n)
+	}
+}
+
+func (m measurementsType) partition(left, right, pivotIndex int) int {
+	pivotValue := m[pivotIndex]
+	m[pivotIndex], m[right] = m[right], m[pivotIndex]
+	storeIndex := left
+	for i := left; i < right; i++ {
+		if m[i] < pivotValue {
+			m[storeIndex], m[i] = m[i], m[storeIndex]
+			storeIndex++
 		}
 	}
-
-	if n < len(underPivot) {
-		result = underPivot.nth(n)
-	} else if n < len(underPivot)+len(eqPivot) {
-		result = pivot
-	} else {
-		result = overPivot.nth(n - len(underPivot) - len(eqPivot))
-	}
-
-	return
+	m[right], m[storeIndex] = m[storeIndex], m[right]
+	return storeIndex
 }
